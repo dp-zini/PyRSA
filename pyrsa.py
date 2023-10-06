@@ -30,7 +30,7 @@ def derive_encrypt_decrypt_key(data, passphrase, salt=None, decrypt=False):
 #gui layout
 
 sg.theme('DarkBlack') #https://www.geeksforgeeks.org/themes-in-pysimplegui/ for a full list of themes
-label_width = 10
+label_width = 20
 
 layout = [
     [sg.Radio("Encrypt", "RADIO1", default=True, key="-ENCRYPT-"), sg.Radio("Decrypt", "RADIO1", key="-DECRYPT-")],
