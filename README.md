@@ -1,2 +1,4 @@
 # PyRSA
-RSA encryption and decryption with a GUI.
+
+PyRSA provides a simple way to encrypt and decrypt RSA. 
+
