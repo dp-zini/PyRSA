@@ -43,7 +43,7 @@ layout = [
     [sg.Button("Paste", size=(12, 1), font=("Any", font_size)), sg.Button("Exit", size=(12, 1), font=("Any", font_size))]
 ]
 
-window = sg.Window("PyRSA", layout, resizable=True)
+window = sg.Window("PyRSA", layout, resizable=True, finalize=True)
 window.Maximize()
 
 public_key, private_key = None, None
