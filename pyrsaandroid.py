@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.fernet import Fernet
 
-# Functions
 
 def generate_key_pair():
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
@@ -27,7 +26,6 @@ def derive_encrypt_decrypt_key(data, passphrase, salt=None, decrypt=False):
     processed_data = (cipher.decrypt if decrypt else cipher.encrypt)(data.encode())
     return processed_data.decode() if decrypt else (key, salt, processed_data)
 
-# GUI Layout
 
 sg.theme('DarkBlack') 
 font_size = 14
@@ -42,11 +40,12 @@ layout = [
     [sg.Text("Private Key:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-PRIVATE_KEY-", size=(20, 2), expand_x=True)],
     [sg.Combo(["Process", "Generate Keys", "Clear", "Copy Results", "Copy Public Key", "Load Encrypted Key", "Save Public Key", "Save Private Key"],
               size=(15, 1), default_value="Process", key="-ACTIONS-", font=("Any", font_size)), sg.Button("Execute", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Exit", size=(12, 1), font=("Any", font_size))]
+    [sg.Button("Paste", size=(12, 1), font=("Any", font_size)), sg.Button("Exit", size=(12, 1), font=("Any", font_size))]
 ]
 
 window = sg.Window("PyRSA", layout, resizable=True)
 window.Maximize()
+
 public_key, private_key = None, None
 
 while True:
@@ -121,5 +120,9 @@ while True:
                 with open("private-key.txt", "w") as priv_file:
                     priv_file.write(values["-PRIVATE_KEY-"])
                 sg.popup("Private key saved (unencrypted).")
+
+    if event == "Paste":
+        clipboard_content = sg.clipboard_get()  
+        window["-MESSAGE-"].update(clipboard_content)  
 
 window.close()
