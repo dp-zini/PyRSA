@@ -31,26 +31,18 @@ def derive_encrypt_decrypt_key(data, passphrase, salt=None, decrypt=False):
 sg.theme('DarkBlack')  # theme
 font_size = 14
 sg.set_options(font=("Any", font_size))
-
+label_width = 10
 layout = [
     [sg.Radio("Encrypt", "RADIO1", default=True, key="-ENCRYPT-", font=("Any", font_size)), sg.Radio("Decrypt", "RADIO1", key="-DECRYPT-", font=("Any", font_size))],
-    [sg.Text("Message:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-MESSAGE-", size=(20, 3), expand_x=True)],
-    [sg.Text("Result:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-RESULT-", size=(20, 3), expand_x=True)],
-    [sg.Text("Public Key:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-PUBLIC_KEY-", size=(20, 3), expand_x=True)],
-    [sg.Text("Private Key:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-PRIVATE_KEY-", size=(20, 3), expand_x=True)],
-    [sg.Button("Process", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Generate Keys", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Clear", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Copy Results", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Copy Public Key", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Load Encrypted Key", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Save Public Key", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Save Private Key", size=(12, 1), font=("Any", font_size))],
+    [sg.Text("Message:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-MESSAGE-", size=(20, 2), expand_x=True)],
+    [sg.Text("Result:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-RESULT-", size=(20, 2), expand_x=True)],
+    [sg.Text("Public Key:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-PUBLIC_KEY-", size=(20, 2), expand_x=True)],
+    [sg.Text("Private Key:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-PRIVATE_KEY-", size=(20, 2), expand_x=True)],
+    
+    [sg.Combo(["Process", "Generate Keys", "Clear", "Copy Results", "Copy Public Key", "Load Encrypted Key", "Save Public Key", "Save Private Key"],
+              size=(15, 1), default_value="Process", key="-ACTIONS-", font=("Any", font_size)), sg.Button("Execute", size=(12, 1), font=("Any", font_size))],
     [sg.Button("Exit", size=(12, 1), font=("Any", font_size))]
 ]
-
-window = sg.Window("PyRSA", layout, resizable=True)
-
 
 window = sg.Window("PyRSA", layout, resizable=True, finalize=True)
 window.Maximize()
