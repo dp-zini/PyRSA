@@ -1,6 +1,6 @@
 # PyRSA
 
-PyRSA provides a simple way to encrypt and decrypt RSA. 
+PyRSA provides a simple way to encrypt and decrypt RSA in python. 
 
 ## Key Features
 - Quickly generate RSA key pairs
