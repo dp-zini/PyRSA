@@ -46,7 +46,7 @@ layout = [
 ]
 
 window = sg.Window("PyRSA", layout, resizable=True)
-
+window.Maximize()
 public_key, private_key = None, None
 
 while True:
