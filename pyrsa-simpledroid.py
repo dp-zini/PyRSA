@@ -26,7 +26,6 @@ def derive_encrypt_decrypt_key(data, passphrase, salt=None, decrypt=False):
     return processed_data.decode() if decrypt else (key, salt, processed_data)
 
 def format_popup_text(text, max_line_length=40):
-    """Format popup text to ensure it doesn't exceed a certain line length."""
     words = text.split()
     lines = []
     current_line = []
