@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.fernet import Fernet
 
-
 def generate_key_pair():
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
     return private_key.public_key(), private_key
@@ -26,8 +25,25 @@ def derive_encrypt_decrypt_key(data, passphrase, salt=None, decrypt=False):
     processed_data = (cipher.decrypt if decrypt else cipher.encrypt)(data.encode())
     return processed_data.decode() if decrypt else (key, salt, processed_data)
 
+def format_popup_text(text, max_line_length=40):
+    """Format popup text to ensure it doesn't exceed a certain line length."""
+    words = text.split()
+    lines = []
+    current_line = []
+    current_length = 0
 
-sg.theme('DarkBlack') 
+    for word in words:
+        if current_length + len(word) > max_line_length:
+            lines.append(' '.join(current_line))
+            current_line = []
+            current_length = 0
+        current_line.append(word)
+        current_length += len(word) + 1
+
+    lines.append(' '.join(current_line))
+    return '\n'.join(lines)
+
+sg.theme('DarkBlack')
 font_size = 14
 sg.set_options(font=("Any", font_size))
 label_width = 10
@@ -39,8 +55,9 @@ layout = [
     [sg.Text("Public Key:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-PUBLIC_KEY-", size=(20, 2), expand_x=True)],
     [sg.Text("Private Key:", size=(label_width, 1), font=("Any", font_size)), sg.Multiline(key="-PRIVATE_KEY-", size=(20, 2), expand_x=True)],
     [sg.Combo(["Process", "Generate Keys", "Clear", "Copy Results", "Copy Public Key", "Load Encrypted Key", "Save Public Key", "Save Private Key"],
-              size=(15, 1), default_value="Process", key="-ACTIONS-", font=("Any", font_size)), sg.Button("Execute", size=(12, 1), font=("Any", font_size))],
-    [sg.Button("Paste", size=(12, 1), font=("Any", font_size)), sg.Button("Exit", size=(12, 1), font=("Any", font_size))]
+              size=(15, 1), default_value="Process", key="-ACTIONS-", font=("Any", font_size))],
+    [sg.Button("Execute", size=(12, 1), font=("Any", font_size)), sg.Button("Paste", size=(12, 1), font=("Any", font_size))],
+    [sg.Button("Clear All", size=(12, 1), font=("Any", font_size)), sg.Button("Exit", size=(12, 1), button_color=('white', 'red'), font=("Any", font_size))]
 ]
 
 window = sg.Window("PyRSA", layout, resizable=True, finalize=True)
@@ -59,22 +76,23 @@ while True:
     if event == "Execute":
         selected_action = values["-ACTIONS-"]
 
+        # Handling each action
         if selected_action == "Process":
             if values["-ENCRYPT-"]:
                 if public_key or values["-PUBLIC_KEY-"]:
                     public_key = public_key or serialization.load_pem_public_key(values["-PUBLIC_KEY-"].encode())
                     window["-RESULT-"].update(encrypt_decrypt_message(public_key, message).hex())
                 else:
-                    sg.popup_error("Provide or generate a public key for encryption.")
+                    sg.popup_error(format_popup_text("Provide or generate a public key for encryption."))
             else:
                 if private_key or values["-PRIVATE_KEY-"]:
                     private_key = private_key or serialization.load_pem_private_key(values["-PRIVATE_KEY-"].encode(), None, default_backend())
                     try:
                         window["-RESULT-"].update(encrypt_decrypt_message(private_key, bytes.fromhex(message), False))
                     except Exception as e:
-                        sg.popup_error(f"Decryption error: {str(e)}")
+                        sg.popup_error(format_popup_text(f"Decryption error: {str(e)}"))
                 else:
-                    sg.popup_error("Provide or generate a private key for decryption.")
+                    sg.popup_error(format_popup_text("Provide or generate a private key for decryption."))
 
         elif selected_action == "Generate Keys":
             public_key, private_key = generate_key_pair()
@@ -103,26 +121,32 @@ while True:
         elif selected_action == "Save Public Key":
             with open("public-key.txt", "w") as pub_file:
                 pub_file.write(values["-PUBLIC_KEY-"])
-            sg.popup("Public key saved successfully!")
+            sg.popup(format_popup_text("Public key saved successfully!"))
 
         elif selected_action == "Save Private Key":
-            choice = sg.popup_yes_no("Encrypt the private key before saving?")
+            choice = sg.popup_yes_no(format_popup_text("Encrypt the private key before saving?"))
             if choice == "Yes":
                 passphrase = sg.popup_get_text("Passphrase for encryption:", password_char="*")
                 if not passphrase:
-                    sg.popup_error("Passphrase is required.")
+                    sg.popup_error(format_popup_text("Passphrase is required."))
                     continue
                 key, salt, encrypted_data = derive_encrypt_decrypt_key(values["-PRIVATE_KEY-"], passphrase)
                 with open("private-key.txt", "wb") as priv_file:
                     priv_file.write(salt + encrypted_data)
-                sg.popup("Encrypted private key saved successfully!")
+                sg.popup(format_popup_text("Encrypted private key saved successfully!"))
             else:
                 with open("private-key.txt", "w") as priv_file:
                     priv_file.write(values["-PRIVATE_KEY-"])
-                sg.popup("Private key saved (unencrypted).")
+                sg.popup(format_popup_text("Private key saved (unencrypted)."))
 
     if event == "Paste":
-        clipboard_content = sg.clipboard_get()  
-        window["-MESSAGE-"].update(clipboard_content)  
+        clipboard_content = sg.clipboard_get()
+        window["-MESSAGE-"].update(clipboard_content)
+
+    if event == "Clear All":
+        window["-MESSAGE-"].update("")
+        window["-RESULT-"].update("")
+        window["-PUBLIC_KEY-"].update("")
+        window["-PRIVATE_KEY-"].update("")
 
 window.close()
