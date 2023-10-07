@@ -76,7 +76,6 @@ while True:
     if event == "Execute":
         selected_action = values["-ACTIONS-"]
 
-        # Handling each action
         if selected_action == "Process":
             if values["-ENCRYPT-"]:
                 if public_key or values["-PUBLIC_KEY-"]:
