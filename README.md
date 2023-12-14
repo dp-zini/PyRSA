@@ -1,18 +1,16 @@
 # PyRSA
 
-PyRSA provides a simple way to encrypt and decrypt RSA in python with a GUI. 
+RSA Encrypytion and Decryption 
 
 ## Key Features
-- Quickly generate RSA key pairs.
-- Support for custom RSA keys (PEM format only).
-- Encrypt and decrypt messages seamlessly.
-- Option to save and load encrypted private keys.
+- Generate RSA key pairs.
+- Support for custom RSA keys.
+- Encrypt and decrypt messages.
 
 ## Installation
-PyRSA uses PySimpleGUI for the GUI, and also uses the cryptography library for encryption and decryption.
-
+PyRSA uses PySimpleGUI for the GUI.
 ``` python
-pip install PySimpleGUI cryptography
+pip install PySimpleGUI
 ```
 ## Usage
 ``` python
