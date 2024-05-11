@@ -14,10 +14,23 @@ def generate_key_pair():
     return private_key.public_key(), private_key
 
 def encrypt_decrypt_message(key, message, encrypt=True):
-    method = key.encrypt if encrypt else key.decrypt
     pad = padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None)
-    processed_message = method(message.encode() if encrypt else message, pad)
-    return processed_message.decode() if not encrypt else processed_message
+    if encrypt:
+        chunk_size = 190
+        result = bytearray()
+        for start in range(0, len(message), chunk_size):
+            chunk = message[start:start + chunk_size]
+            processed_chunk = key.encrypt(chunk.encode(), pad)
+            result.extend(processed_chunk)
+        return bytes(result)
+    else:
+        encrypted_chunk_size = 256
+        result = bytearray()
+        for start in range(0, len(message), encrypted_chunk_size):
+            chunk = message[start:start + encrypted_chunk_size]
+            processed_chunk = key.decrypt(chunk, pad)
+            result.extend(processed_chunk)
+        return result.decode()
 
 def derive_encrypt_decrypt_key(data, passphrase, salt=None, decrypt=False):
     salt = salt or os.urandom(16)
@@ -47,28 +60,27 @@ public_key, private_key = None, None
 
 while True:
     event, values = window.read()
-    # exits when you exit
     if event in (sg.WIN_CLOSED, "Exit"):
         break
 
     message = values["-MESSAGE-"].strip()
-    #encrypt/decrypt
     if event == "Process":
         if values["-ENCRYPT-"]:
-            if public_key or values["-PUBLIC_KEY-"]:
-                public_key = public_key or serialization.load_pem_public_key(values["-PUBLIC_KEY-"].encode())
-                window["-RESULT-"].update(encrypt_decrypt_message(public_key, message).hex())
+            if public_key:
+                encrypted_message = encrypt_decrypt_message(public_key, message, True)
+                window["-RESULT-"].update(base64.b64encode(encrypted_message).decode())
             else:
-                sg.popup_error("Provide or generate a public key for encryption.")
-        else:
-            if private_key or values["-PRIVATE_KEY-"]:
-                private_key = private_key or serialization.load_pem_private_key(values["-PRIVATE_KEY-"].encode(), None, default_backend())
+                sg.popup_error("Generate or load a public key first.")
+        elif values["-DECRYPT-"]:
+            if private_key:
                 try:
-                    window["-RESULT-"].update(encrypt_decrypt_message(private_key, bytes.fromhex(message), False))
+                    encrypted_message = base64.b64decode(message)
+                    decrypted_message = encrypt_decrypt_message(private_key, encrypted_message, False)
+                    window["-RESULT-"].update(decrypted_message)
                 except Exception as e:
                     sg.popup_error(f"Decryption error: {str(e)}")
             else:
-                sg.popup_error("Provide or generate a private key for decryption.")
+                sg.popup_error("Generate or load a private key first.")
     # generate key button
     if event == "Generate Keys":
         public_key, private_key = generate_key_pair()
