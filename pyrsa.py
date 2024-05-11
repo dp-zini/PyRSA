@@ -1,6 +1,6 @@
 import os
 import base64
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
