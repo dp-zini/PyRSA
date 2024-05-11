@@ -51,7 +51,7 @@ layout = [
     [sg.Text("Result:", size=(label_width, 1)), sg.Multiline(key="-RESULT-", size=(40, 5), expand_x=True, expand_y=True)],
     [sg.Text("Public Key:", size=(label_width, 1)), sg.Multiline(key="-PUBLIC_KEY-", size=(40, 5), expand_x=True, expand_y=True)],
     [sg.Text("Private Key:", size=(label_width, 1)), sg.Multiline(key="-PRIVATE_KEY-", size=(40, 5), expand_x=True, expand_y=True)],
-    [sg.Button(x) for x in ["Process", "Generate Keys", "Clear", "Copy Results", "Copy Public Key", "Load Encrypted Key", "Save Public Key", "Save Private Key", "Exit"]]
+    [sg.Button(x) for x in ["Process", "Generate Keys", "Clear", "Copy Results", "Copy Public Key", "Load Public Key", "Load Encrypted Key", "Save Public Key", "Save Private Key", "Exit"]]
 ]
 
 window = sg.Window("PyRSA", layout, resizable=True)
@@ -115,6 +115,15 @@ while True:
         passphrase = sg.popup_get_text("Passphrase for decryption:", password_char="*")
         private_key_content = derive_encrypt_decrypt_key(encrypted_key.decode(), passphrase, salt, True)
         window["-PRIVATE_KEY-"].update(private_key_content)
+    if event == "Load Public Key":
+        try:
+            with open("public-key.txt", "r") as pub_file:
+                public_key_data = pub_file.read()
+                public_key = serialization.load_pem_public_key(public_key_data.encode(), backend=default_backend())
+                window["-PUBLIC_KEY-"].update(public_key_data)
+                sg.popup("Public key loaded successfully!")
+        except Exception as e:
+            sg.popup_error(f"Failed to load public key: {str(e)}")
     #clear msg
     if event == "Clear":
         window["-MESSAGE-"].update("")
