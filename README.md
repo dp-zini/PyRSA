@@ -8,9 +8,9 @@ RSA Encrypytion and Decryption
 - Encrypt and decrypt messages.
 
 ## Installation
-PyRSA uses PySimpleGUI for the GUI.
+PyRSA uses FreeSimpleGUI for the GUI.
 ``` python
-pip install PySimpleGUI
+pip install FreeSimpleGUI
 ```
 ## Usage
 ``` python
